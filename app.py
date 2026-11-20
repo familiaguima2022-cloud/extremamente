@@ -122,9 +122,14 @@ def achar_ocorrencias(palavras):
     return ocorrencias
 
 
-def gerar_texto(total: int) -> str:
+def gerar_texto(tempos) -> str:
+    """Frase + os horários logo depois do ponto final (um por ocorrência)."""
+    total = len(tempos)
     vezes = "vez" if total == 1 else "vezes"
-    return f"Checador de extremamente, esse vídeo usou {total} {vezes} a palavra extremamente."
+    texto = f"Checador de extremamente, esse vídeo usou {total} {vezes} a palavra extremamente."
+    if tempos:
+        texto += " " + ", ".join(hhmmss(t) for t in tempos)
+    return texto
 
 
 # ---------------- Interface ----------------
@@ -170,10 +175,11 @@ if st.button("Checar", type="primary") and url.strip():
 
     st.subheader(f"Total: {total}")
     st.caption("Fonte: legendas do YouTube (via Supadata). O tempo é aproximado, por frase. Confira os links antes de postar.")
-    st.code(gerar_texto(total), language=None)  # botão de copiar já vem no canto
+    st.code(gerar_texto([inicio for inicio, _ in ocorrencias]), language=None)  # botão de copiar no canto
 
-    if ocorrencias:
-        st.subheader("Onde apareceu (clique para validar no vídeo)")
-        for inicio, contexto in ocorrencias:
-            link = f"https://www.youtube.com/watch?v={video_id}&t={int(inicio)}s"
-            st.markdown(f"**[{hhmmss(inicio)}]({link})** — …{contexto}…")
+    st.subheader("Onde apareceu (clique para validar no vídeo)")
+    if not ocorrencias:
+        st.write("Nenhuma ocorrência encontrada.")
+    for inicio, contexto in ocorrencias:
+        link = f"https://www.youtube.com/watch?v={video_id}&t={int(inicio)}s"
+        st.markdown(f"**[{hhmmss(inicio)}]({link})** — …{contexto}…")
