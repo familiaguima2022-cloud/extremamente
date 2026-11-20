@@ -123,13 +123,23 @@ def achar_ocorrencias(palavras):
 
 
 def gerar_texto(tempos) -> str:
-    """Frase + os horários logo depois do ponto final (um por ocorrência)."""
+    """
+    Comentário pronto para o YouTube, em UMA linha só (o YouTube não reconhece
+    quebras de linha): contagem + horários + provocação.
+    """
     total = len(tempos)
-    vezes = "vez" if total == 1 else "vezes"
-    texto = f"Checador de extremamente, esse vídeo usou {total} {vezes} a palavra extremamente."
-    if tempos:
-        texto += " " + ", ".join(hhmmss(t) for t in tempos)
-    return texto
+    if total == 0:
+        return "Checador de extremamente: essa palavra não apareceu neste vídeo."
+
+    horarios = ", ".join(hhmmss(t) for t in tempos)
+    if total == 1:
+        contagem = "essa palavra apareceu 1 vez neste vídeo."
+        pergunta = "ela foi bem usada nessa única vez ou você trocaria por outra?"
+    else:
+        contagem = f"essa palavra apareceu {total} vezes neste vídeo."
+        pergunta = f"ela foi bem usada em todas as {total} vezes ou você trocaria alguma?"
+
+    return f"Checador de extremamente: {contagem} {horarios} Conta aí, de forma leve e respeitosa: {pergunta}"
 
 
 # ---------------- Interface ----------------
@@ -175,7 +185,7 @@ if st.button("Checar", type="primary") and url.strip():
 
     st.subheader(f"Total: {total}")
     st.caption("Fonte: legendas do YouTube (via Supadata). O tempo é aproximado, por frase. Confira os links antes de postar.")
-    st.code(gerar_texto([inicio for inicio, _ in ocorrencias]), language=None)  # botão de copiar no canto
+    st.code(gerar_texto([inicio for inicio, _ in ocorrencias]), language=None, wrap_lines=True)  # botão de copiar no canto
 
     st.subheader("Onde apareceu (clique para validar no vídeo)")
     if not ocorrencias:
